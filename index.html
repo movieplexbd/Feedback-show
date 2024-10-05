@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Feedbacks</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+      font-size: 24px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background-color: #f8f9fa;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-btn {
+      background-color: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .delete-btn:hover {
+      background-color: #ff1a1a;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>All Feedbacks</h1>
+    <ul id="feedbackList"></ul>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBsz-82MDaibWnIBUpoykrZHyJW7UMedX8",
+      authDomain: "movies-bee24.firebaseapp.com",
+      databaseURL: "https://movies-bee24-default-rtdb.firebaseio.com",
+      projectId: "movies-bee24",
+      storageBucket: "movies-bee24.appspot.com",
+      messagingSenderId: "1080659811750",
+      appId: "1:1080659811750:web:c1ef7d4dacc3ab17edc367"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const feedbackRef = ref(db, 'feedbacks');
+    const feedbackList = document.getElementById('feedbackList');
+
+    onValue(feedbackRef, (snapshot) => {
+      feedbackList.innerHTML = '';
+
+      snapshot.forEach((childSnapshot) => {
+        const feedbackKey = childSnapshot.key;
+        const feedbackData = childSnapshot.val().feedback;
+
+        const li = document.createElement('li');
+        const feedbackText = document.createElement('span');
+        feedbackText.textContent = feedbackData;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.classList.add('delete-btn');
+
+        deleteBtn.onclick = () => {
+          if (confirm('Are you sure you want to delete this feedback?')) {
+            remove(ref(db, 'feedbacks/' + feedbackKey));
+          }
+        };
+
+        li.appendChild(feedbackText);
+        li.appendChild(deleteBtn);
+        feedbackList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
